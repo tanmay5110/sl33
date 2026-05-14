@@ -1,0 +1,1269 @@
+================================================================================
+   DR. D.Y. PATIL INSTITUTE OF TECHNOLOGY, PUNE
+   DEPARTMENT OF AI & DATA SCIENCE — SOFTWARE LABORATORY III (317534)
+   COMPLETE CONCEPT NOTES + VIVA QUESTIONS
+   Third Year Engineering | Semester V | Academic Year 2024-25
+================================================================================
+
+================================================================================
+PART A — DETAILED CONCEPT EXPLANATIONS (ALL 11 ASSIGNMENTS)
+================================================================================
+
+------------------------------------------------------------------------
+ASSIGNMENT 1 — DATA WRANGLING I
+------------------------------------------------------------------------
+
+1. BIG DATA
+-----------
+Big Data refers to extremely large datasets that cannot be processed using traditional
+computing techniques. It involves collecting, storing, and analyzing massive volumes of
+structured and unstructured data from various sources (social media, IoT devices,
+transactions, etc.). Big Data is characterized by the 3 V's:
+  - Volume   : Huge amount of data
+  - Velocity : Speed at which data is generated and processed
+  - Variety  : Different forms of data (text, images, video, structured, unstructured)
+
+2. DATASET
+----------
+A dataset is an organized collection of related data records, similar to a relational
+database table. Records (rows) can contain strings, numbers, or nested structures like
+lists, maps, and nested records. Example: The Iris dataset has 150 records and 6 columns.
+
+3. PYTHON LIBRARIES FOR DATA SCIENCE
+--------------------------------------
+
+a) NumPy (Numerical Python)
+   - A fundamental package for numerical computing in Python.
+   - Provides the ndarray (N-dimensional array) object — a table of elements of the
+     same data type, indexed by a tuple of positive integers.
+   - Key operations: array creation, slicing, reshaping, stacking, broadcasting,
+     linear algebra, datetime operations.
+   - "Dimensions" in NumPy are called axes; number of axes = rank.
+
+b) Pandas
+   - Open-source Python library for high-performance data manipulation and analysis.
+   - Core structures: DataFrame (2D labeled table) and Series (1D labeled array).
+   - Key operations: indexing, sorting, merging, grouping, handling missing data,
+     reading/writing CSV/Excel/SQL, plotting histograms and box plots.
+
+c) Scikit-learn (sklearn)
+   - Robust machine learning library for Python.
+   - Supports: Classification (SVM, Random Forest), Clustering (K-Means),
+     Regression, Dimensionality Reduction, Model Selection, Preprocessing.
+   - Built on top of NumPy and SciPy.
+
+4. IRIS DATASET
+---------------
+- Introduced by R.A. Fisher in 1936 in "The Use of Multiple Measurements in
+  Taxonomic Problems."
+- 150 samples across 3 species: Iris-setosa, Iris-versicolor, Iris-virginica
+  (50 samples each).
+- 6 columns: Id, SepalLengthCm, SepalWidthCm, PetalLengthCm, PetalWidthCm, Species.
+- One species (setosa) is linearly separable from the other two.
+
+5. PANDAS DATAFRAME — KEY FUNCTIONS
+-------------------------------------
+  dataset.head(n)         → Returns first n rows (default 5)
+  dataset.tail(n)         → Returns last n rows
+  dataset.index           → Row labels
+  dataset.columns         → Column labels
+  dataset.shape           → Tuple (rows, columns)
+  dataset.dtypes          → Data types of each column
+  dataset.iloc[r, c]      → Integer-location based indexing
+  dataset.loc[:, ["col"]] → Label-based selection
+
+6. HANDLING MISSING VALUES
+---------------------------
+  - isnull()  : Returns boolean DataFrame — True where value is NaN/None
+  - isna()    : Alias for isnull()
+  - notnull() : Opposite of isnull(); True where value exists
+  - any()     : Returns True if at least one value is missing in a column
+  - sum()     : Counts missing values per column
+  - dataframe.isnull().sum().sum() → Total missing values in entire DataFrame
+  - dataframe.isnull().sum(axis=1) → Missing count per row
+
+  pandas recognizes both None (Python singleton) and NaN (IEEE floating-point
+  standard "Not a Number") as missing values.
+
+7. DATA FORMATTING
+------------------
+  Ensuring correct data types (object, text, float, integer, etc.) for all columns.
+  - df.dtypes                       → Check data types
+  - df['col'].astype("int")         → Convert column to integer
+  - Important for date-time operations, mathematical calculations, and ML models.
+
+8. DATA NORMALIZATION (Min-Max Scaling)
+----------------------------------------
+  Normalization maps all numeric values onto a uniform scale, typically [0, 1].
+  This removes the effect of different scales across variables (e.g., age vs. income).
+
+  Formula:  X_scaled = (X - X_min) / (X_max - X_min)
+
+  In Python:
+    from sklearn import preprocessing
+    min_max_scaler = preprocessing.MinMaxScaler()
+    x_scaled = min_max_scaler.fit_transform(x)
+
+  Why normalize?
+  - Prevents features with large ranges from dominating model training.
+  - Improves convergence speed of gradient-based algorithms.
+  - Makes statistical comparisons fairer.
+
+9. CATEGORICAL VARIABLES & LABEL ENCODING
+-------------------------------------------
+  Categorical variables describe qualities or characteristics (e.g., gender, species).
+  They are mutually exclusive and exhaustive.
+  Machines cannot directly process text, so categorical values must be converted to
+  numeric form.
+
+  Label Encoding:
+  - Converts text labels to integers: Tall→0, Medium→1, Short→2
+  - sklearn.preprocessing.LabelEncoder
+  - fit_transform(y): Encodes array of labels to integers 0 to n_classes-1
+
+  Iris example:
+    Iris-setosa     → 0
+    Iris-versicolor → 1
+    Iris-virginica  → 2
+
+  Limitation: Implies an ordinal relationship that may not exist (2 > 1 > 0 is
+  not meaningful for species). Better alternatives: One-Hot Encoding for nominal data.
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 2 — DATA WRANGLING II
+------------------------------------------------------------------------
+
+1. MISSING DATA (NULL VALUES)
+------------------------------
+  Missing data occurs when no information is provided for one or more data items.
+  In pandas, missing data is represented as:
+  - None : Python singleton used as placeholder
+  - NaN  : IEEE floating-point "Not a Number"
+
+  Handling Techniques:
+  a) isnull() / notnull()   → Detection
+  b) fillna(value)          → Replace NaN with a specified value
+  c) fillna(df['col'].mean())   → Replace with column mean
+  d) fillna(df['col'].median()) → Replace with column median
+  e) fillna(df['col'].mode())   → Replace with column mode (most frequent)
+  f) dropna()               → Remove rows with at least 1 missing value
+  g) dropna(how='all')      → Remove rows where ALL values are missing
+  h) dropna(axis=1)         → Drop columns with at least 1 missing value
+  i) replace(np.nan, -99)   → Replace NaN with a custom placeholder
+
+2. OUTLIERS
+-----------
+  An outlier is an observation that lies far from the rest of the data — unusually
+  larger or smaller than the other values.
+
+  Why do outliers occur?
+  - Data entry/human errors
+  - Variability in data
+  - Heavy-skewed distributions
+
+  Effect on statistics:
+  - Mean is heavily affected by outliers
+  - Median is robust (not much affected)
+  - Mode is usually unaffected
+  - Outliers increase variance and standard deviation
+
+  Outlier Detection Methods:
+  a) Visual: Boxplot — displays Q1, Q2 (median), Q3; outliers shown as individual dots
+  b) Scatter Plot — visual identification in 2D
+  c) Z-score: Z = (X - mean) / std_dev; |Z| > 3 considered outlier
+  d) IQR (Inter-Quartile Range):
+       IQR = Q3 - Q1
+       Lower bound = Q1 - 1.5 * IQR
+       Upper bound = Q3 + 1.5 * IQR
+       Values outside these bounds → outliers
+
+  Handling Outliers:
+  - Trimming/Removing: Delete the outlier rows
+  - Capping (Flooring & Capping): Replace with boundary value (Q1/Q3)
+  - Mean/Median Imputation: Replace with column mean or median
+  - Transformation: Log transform to reduce skewness
+
+3. DATA TRANSFORMATION
+-----------------------
+  Converting raw data into a more suitable format for modeling or analysis.
+  Also called ETL (Extract-Transform-Load).
+
+  Transformation Types:
+  a) Smoothing       : Removes noise using algorithms; highlights patterns
+  b) Aggregation     : Summarizes data (e.g., daily sales → monthly sales)
+  c) Generalization  : Converts low-level to high-level (e.g., Age 22 → "Young")
+  d) Normalization   :
+       - Min-Max normalization (linear scaling to [0,1])
+       - Z-score normalization: X_z = (X - mean) / std_dev
+       - Decimal scaling: Divide by power of 10 to bring values within [-1, 1]
+  e) Attribute Construction: Create new features from existing ones
+
+4. DATA SKEWNESS
+-----------------
+  Asymmetry in statistical distribution:
+  - Positively Skewed (Right-Skewed): Tail extends to the right; Mean > Median > Mode
+  - Negatively Skewed (Left-Skewed) : Tail extends to the left;  Mode > Median > Mean
+
+  Normal Distribution: Symmetric bell-shaped curve; Mean = Median = Mode.
+
+  Reducing Skewness:
+  - Log transformation: df['log_col'] = np.log10(df['col'])
+    Commonly used for right skewness. Cannot be applied to zero/negative values.
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 3 — DESCRIPTIVE STATISTICS: MEASURES OF CENTRAL TENDENCY & VARIABILITY
+------------------------------------------------------------------------
+
+1. MEAN (Arithmetic Average)
+------------------------------
+  Mean = Sum of all observations / Number of observations
+  Formula: x̄ = Σx / N
+
+  For grouped data: Mean = Σ(f × x) / Σf
+  Affected by outliers. Best used for symmetric distributions.
+
+2. MEDIAN
+----------
+  The middle value when data is sorted in ascending/descending order.
+  
+  For odd n:   Median = ((n+1)/2)th observation
+  For even n:  Median = average of (n/2)th and (n/2 + 1)th observations
+  For grouped: Median = l + [(n/2 - c) / f] × h
+  
+  Not affected by outliers. Suitable when data is skewed.
+
+3. MODE
+-------
+  The value that occurs most frequently in a dataset.
+  For grouped data:
+    Mode = l + [(fm - f1) / (2fm - f1 - f2)] × h
+    where: l=lower class limit, fm=frequency of modal class,
+           f1=freq before modal class, f2=freq after modal class, h=class width
+  
+  Used when data has a dominant value or when working with categorical data.
+
+4. STANDARD DEVIATION
+----------------------
+  Measures the average spread of values from the mean.
+  
+  Formula: s = √[Σ(X - x̄)² / (n-1)]   [for sample]
+
+  Steps:
+  Step 1: Find the mean (x̄)
+  Step 2: Subtract mean from each value → deviations
+  Step 3: Square each deviation
+  Step 4: Sum all squared deviations (Sum of Squares)
+  Step 5: Divide by (n-1) → Variance
+  Step 6: Take square root → Standard Deviation
+
+  Example: Dataset [46, 69, 32, 60, 52, 41]
+    Mean = 50, Sum of Squares = 886, Variance = 177.2, SD = 13.31
+
+5. PERCENTILE / DESCRIBE()
+---------------------------
+  pandas describe() provides a statistical summary:
+  - count, mean, std, min, 25%, 50%, 75%, max
+  - Applied per group using groupby()
+
+  Percentile: The value below which a given percentage of observations fall.
+  25th percentile = Q1 (lower quartile)
+  50th percentile = Q2 (median)
+  75th percentile = Q3 (upper quartile)
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 4 — LINEAR REGRESSION
+------------------------------------------------------------------------
+
+1. LINEAR REGRESSION
+---------------------
+  A supervised ML algorithm that models the linear relationship between:
+  - Dependent (response) variable: y
+  - Independent (predictor) variable(s): x
+
+  Simple Linear Regression equation:
+    ŷ = β₀ + β₁x
+  where β₀ = y-intercept, β₁ = slope, e = error term
+
+  Uses: Prediction of continuous values (house prices, stock prices, etc.)
+
+2. UNIVARIATE vs. MULTIVARIATE REGRESSION
+-------------------------------------------
+  Univariate (Simple): One predictor variable  →  y = a + bX
+  Multivariate      : Two or more predictors  →  y = a + b₁X₁ + b₂X₂ + ...
+
+  Polynomial (extension): y = a + bX + cX²
+  - High polynomial degree can cause overfitting (model captures noise too).
+
+3. LEAST SQUARES METHOD
+------------------------
+  Estimates regression parameters β₀ and β₁ by minimizing the sum of squared
+  errors (SSE):
+    minimize: Σ(yᵢ - ŷᵢ)²
+
+  Formulas:
+    β₁ = Σ(xᵢ - x̄)(yᵢ - ȳ) / Σ(xᵢ - x̄)²
+    β₀ = ȳ - β₁x̄
+
+4. PERFORMANCE METRICS FOR REGRESSION
+---------------------------------------
+  a) MSE (Mean Squared Error):
+       MSE = (1/n) × Σ(y - ŷ)²
+       - Penalizes large errors more heavily.
+       - MSE = 0 → perfect predictor.
+
+  b) RMSE (Root Mean Squared Error):
+       RMSE = √[Σ(yᵢ - ŷᵢ)² / n]
+       - Same unit as target variable; easier to interpret.
+
+  c) R-Squared (Coefficient of Determination):
+       R² = SSR / SST = Σ(ŷᵢ - ȳ)² / Σ(yᵢ - ȳ)²
+       where:
+         SST = Σ(yᵢ - ȳ)²     → Total variation
+         SSR = Σ(ŷᵢ - ȳ)²     → Explained variation
+         SSE = Σ(yᵢ - ŷᵢ)²   → Unexplained variation (residuals)
+       
+       R² closer to 1 → model explains most variance → good fit.
+       R² = 0 → model is no better than predicting the mean.
+
+5. TRAINING & TESTING SETS
+----------------------------
+  - Training set: Used to fit/train the model. Model learns patterns from this data.
+  - Test set    : Completely separate data; used to evaluate model performance.
+  - Common split: 80% train, 20% test (train_test_split in sklearn)
+
+  Types of errors:
+  - Training error (Eᵢₙ): Error on training data
+  - Testing error (Eₒᵤₜ): Error on unseen test data; usually Eₒᵤₜ > Eᵢₙ
+
+  Generalization: The model's ability to perform well on unseen data.
+  Goal of ML: Minimize generalization error.
+
+6. BOSTON HOUSING DATASET
+--------------------------
+  - 506 samples, 14 feature variables
+  - Target: PRICE (house prices in Boston)
+  - Features include: CRIM (crime rate), ZN, INDUS, CHAS, NOX, RM, AGE,
+    DIS, RAD, TAX, PTRATIO, B, LSTAT, MEDV
+  - Available via sklearn.datasets.load_boston() [deprecated in newer sklearn]
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 5 — LOGISTIC REGRESSION
+------------------------------------------------------------------------
+
+1. LOGISTIC REGRESSION
+-----------------------
+  A classification algorithm (despite the name "regression") used for predicting
+  binary (or multi-class) outcomes.
+  - Output: Probability between 0 and 1 using the sigmoid function.
+  - Uses: Spam detection, diabetes prediction, customer churn, ad click prediction.
+
+  It is a special case of linear regression where the target is categorical.
+  Instead of predicting y directly, it predicts P(y=1|x) using log of odds (logit).
+
+  Equation:
+    Linear Regression: y = β₀ + β₁X₁ + β₂X₂ + ... + βₙXₙ
+    Logistic:          p = 1 / (1 + e^(-y))
+
+2. SIGMOID FUNCTION
+--------------------
+  Maps any real number to a value between 0 and 1:
+    f(x) = 1 / (1 + e^(-x))
+
+  Properties:
+  - S-shaped curve
+  - As x→+∞, f(x)→1
+  - As x→-∞, f(x)→0
+  - f(0) = 0.5 (decision boundary)
+
+  Decision rule:
+  - P > 0.5 → Class 1 (YES)
+  - P < 0.5 → Class 0 (NO)
+
+3. LINEAR vs. LOGISTIC REGRESSION
+-----------------------------------
+  Linear Regression:
+  - Output: Continuous (house price, stock price)
+  - Estimated using OLS (Ordinary Least Squares)
+
+  Logistic Regression:
+  - Output: Discrete/Categorical (0 or 1)
+  - Estimated using MLE (Maximum Likelihood Estimation)
+
+4. TYPES OF LOGISTIC REGRESSION
+---------------------------------
+  a) Binary Logistic Regression    : 2 classes (Spam/Not Spam, Yes/No)
+  b) Multinomial Logistic Regression: 3+ nominal classes (type of wine)
+  c) Ordinal Logistic Regression   : 3+ ordered classes (rating 1-5)
+
+5. CONFUSION MATRIX & EVALUATION METRICS
+------------------------------------------
+  A confusion matrix compares actual vs. predicted classifications:
+
+                  Predicted Positive  |  Predicted Negative
+  Actual Positive:       TP           |       FN
+  Actual Negative:       FP           |       TN
+
+  - TP (True Positive) : Actually positive, predicted positive
+  - TN (True Negative) : Actually negative, predicted negative
+  - FP (False Positive): Actually negative, predicted positive  [Type I Error]
+  - FN (False Negative): Actually positive, predicted negative  [Type II Error]
+
+  Metrics:
+  a) Accuracy    = (TP + TN) / (TP + FP + TN + FN)
+     Ideal value = 1
+  
+  b) Error Rate  = (FP + FN) / (TP + FP + TN + FN)  = 1 - Accuracy
+     Ideal value = 0
+  
+  c) Precision   = TP / (TP + FP)
+     "Of all predicted positives, how many were actually positive?"
+     Also called Confidence value or Positive Predictive Value
+  
+  d) Recall      = TP / (TP + FN)
+     "Of all actual positives, how many did we correctly predict?"
+     Also called Sensitivity or True Positive Rate
+
+  Dataset: Social_Network_Ads.csv
+  Library: from sklearn.linear_model import LogisticRegression
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 6 — NAIVE BAYES CLASSIFICATION
+------------------------------------------------------------------------
+
+1. BAYES' THEOREM
+------------------
+  Computes posterior probability using prior probability and likelihood:
+  
+    P(A|B) = P(B|A) × P(A) / P(B)
+
+  - P(A) = Prior probability (probability of event A with no other information)
+  - P(A|B) = Posterior probability (probability of A given B has occurred)
+  - P(B|A) = Likelihood
+  - P(B) = Evidence (normalizing constant)
+
+2. NAIVE BAYES CLASSIFIER
+--------------------------
+  A probabilistic classifier based on Bayes' theorem with a NAIVE assumption:
+  All features are conditionally independent of each other given the class.
+
+  For a class Cₖ with features X = {F₁, F₂, ..., Fₚ}:
+    P(Cₖ|X) = P(X|Cₖ) × P(Cₖ) / P(X)
+  
+  With independence assumption:
+    P(Cₖ|X) ∝ P(Cₖ) × P(F₁|Cₖ) × P(F₂|Cₖ) × ... × P(Fₚ|Cₖ)
+
+  Classification: Assign class with highest posterior probability.
+
+3. GAUSSIAN NAIVE BAYES
+------------------------
+  Used when features are continuous and assumed to follow a normal distribution.
+  sklearn function: GaussianNB() from sklearn.naive_bayes
+
+4. NAIVE BAYES EXAMPLE (Play Tennis)
+--------------------------------------
+  Features: Outlook, Temp, Humidity, Windy
+  Target: Play = Yes/No
+
+  To predict for (Rainy, Cool, High, True):
+    P(Yes|X) = P(Rainy|Yes)×P(Cool|Yes)×P(High|Yes)×P(True|Yes)×P(Yes)
+             = 2/9 × 3/9 × 3/9 × 3/9 × 9/14 = 0.00529
+    
+    P(No|X)  = P(Rainy|No)×P(Cool|No)×P(High|No)×P(True|No)×P(No)
+             = 3/5 × 1/5 × 4/5 × 3/5 × 5/14 = 0.02057
+    
+    Since P(No|X) > P(Yes|X) → Prediction: No golf played.
+
+5. PRIOR vs. CONDITIONAL PROBABILITY
+--------------------------------------
+  - Prior probability P(A): Probability based on no additional information
+  - Conditional probability P(A|B): Probability of A given that B occurred
+  - Joint probability P(A∩B) = P(A|B)×P(B) = P(B|A)×P(A)
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 7 — TEXT ANALYTICS (NLP + TF-IDF)
+------------------------------------------------------------------------
+
+1. TEXT ANALYTICS / TEXT MINING
+---------------------------------
+  Process of extracting useful information from unstructured text data.
+  
+  Text Mining vs. NLP:
+  - Text Mining: Word frequency, sentence length, word presence/absence
+  - NLP (Natural Language Processing): Sentiment analysis, entity recognition,
+    topic classification; works with underlying meaning/context
+
+  NLTK (Natural Language Toolkit): Python platform for NLP.
+  Provides interfaces for: tokenization, stemming, tagging, parsing, WordNet, etc.
+
+2. TOKENIZATION
+----------------
+  Breaking down a paragraph/sentence into smaller units (tokens).
+  
+  Types:
+  a) Sentence Tokenization: Split paragraph into list of sentences
+     Function: sent_tokenize(text)
+  
+  b) Word Tokenization: Split sentence into list of words
+     Function: word_tokenize(text)
+
+3. STOP WORDS REMOVAL
+----------------------
+  Stop words are common words with little semantic value: is, am, are, the, a, an, etc.
+  They add noise to text analysis.
+  
+  Removal:
+    from nltk.corpus import stopwords
+    stop_words = set(stopwords.words("english"))
+    filtered_text = [word for word in tokens if word not in stop_words]
+
+4. STEMMING
+-----------
+  Reduces words to their root/base form by cutting suffixes/prefixes.
+  - fishing, fished, fisher → fish
+  - argued, arguing, argues → argu (stem may not be a real word)
+  
+  Porter Stemmer is widely used.
+  Function: PorterStemmer().stem(word)
+  
+  Limitation: Root may not be a valid dictionary word.
+
+5. LEMMATIZATION
+-----------------
+  Converts inflected words to their base dictionary form (lemma) using
+  morphological analysis and vocabulary lookup.
+  - studies, studying → study
+  - better → good
+  
+  More accurate than stemming (produces real words).
+  Function: WordNetLemmatizer().lemmatize(word)
+
+  Stemming vs. Lemmatization:
+  - Stemming: Simple, fast, may give non-words, uses rule-based suffix removal
+  - Lemmatization: Slower, intelligent, always gives valid words, uses dictionary
+
+6. POS TAGGING (Parts of Speech Tagging)
+------------------------------------------
+  Assigns grammatical tags to each word:
+  - DT = Determiner (the, a)
+  - NN = Noun
+  - JJ = Adjective
+  - VB = Verb
+  - RB = Adverb
+  - PRP = Personal Pronoun
+  
+  A word can have multiple POS tags depending on context.
+  Function: nltk.pos_tag([word])
+  
+  Useful in sentiment analysis, text realization, semantic information extraction.
+
+7. TF-IDF (Term Frequency — Inverse Document Frequency)
+---------------------------------------------------------
+  A numerical statistic indicating the importance of a word in a document
+  relative to a corpus (collection of documents).
+
+  a) Term Frequency (TF):
+     TF(w, d) = (Number of times word w appears in document d) /
+                (Total number of words in document d)
+     - High TF → word is frequent in that document
+
+  b) Inverse Document Frequency (IDF):
+     IDF(w, D) = ln(N / df(w))
+     where N = total documents, df(w) = documents containing word w
+     - Words appearing in all documents get IDF=0 (e.g., "is", "the")
+     - Rare words get high IDF
+     - ln is used to dampen the effect of IDF
+
+  c) TF-IDF:
+     TFIDF(w, d, D) = TF(w, d) × IDF(w, D)
+     - High TFIDF → word is important AND specific to that document
+
+  Disadvantage: Cannot capture semantic similarity (funny ≈ humorous not detected).
+
+8. BAG OF WORDS (BoW)
+----------------------
+  Simple representation of text as a "bag" (unordered set) of word counts.
+  - Information about word order and grammar is lost.
+  - Each document is represented as a vector of word frequencies.
+  - Used as input features for ML models.
+  - Foundation for TF-IDF.
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 8 — DATA VISUALIZATION I (SEABORN)
+------------------------------------------------------------------------
+
+1. SEABORN LIBRARY
+-------------------
+  Advanced Python data visualization library built on top of Matplotlib.
+  Provides high-level functions for attractive statistical graphics.
+  Install: pip install seaborn
+  Import:  import seaborn as sns
+
+2. DISTRIBUTION PLOTS
+----------------------
+  Used to visualize the spread, mean, median, range, variance of continuous data.
+
+  a) Dist Plot (sns.distplot):
+     - Histogram + KDE (Kernel Density Estimate) curve
+     - Univariate analysis
+     - Parameters: bins (number of bars), kde (True/False)
+  
+  b) Joint Plot (sns.jointplot):
+     - Combination of two dist plots (bivariate analysis)
+     - Also includes scatter/hexagonal plot between variables
+     - kind='scatter' or kind='hex'
+  
+  c) Rug Plot (sns.rugplot):
+     - Draws small tick marks along the x-axis for each data point
+     - Shows concentration/density of data
+
+3. CATEGORICAL PLOTS
+---------------------
+  Used to visualize relationships between categorical and numeric columns.
+
+  a) Bar Plot (sns.barplot):
+     - Displays MEAN of a numeric variable for each category
+     - Can use custom aggregation (estimator=np.std for standard deviation)
+  
+  b) Count Plot (sns.countplot):
+     - Displays COUNT of observations for each category
+     - Like a bar plot but no numeric y-variable needed
+  
+  c) Box Plot (sns.boxplot):
+     - Displays distribution using Q1, median (Q2), Q3, whiskers, and outliers
+     - Box = IQR (Q1 to Q3); Center line = Median
+     - Whiskers extend to min/max within 1.5×IQR; Dots = outliers
+     - hue parameter adds a second categorical variable
+  
+  d) Violin Plot (sns.violinplot):
+     - Box plot + KDE on both sides
+     - Shows full distribution; wider sections = more observations
+     - More informative than box plot
+
+4. ADVANCED PLOTS
+------------------
+  a) Strip Plot (sns.stripplot):
+     - Scatter plot where one variable is categorical
+     - jitter=True adds random noise to prevent overplotting
+  
+  b) Swarm Plot (sns.swarmplot):
+     - Combination of strip + violin
+     - Points are adjusted to prevent overlap
+     - Shows actual distribution of each data point
+
+5. MATRIX PLOTS
+----------------
+  Show data in the form of rows and columns.
+  
+  a) Heat Map (sns.heatmap):
+     - Visualizes correlation matrix as colored grid
+     - High correlation → white/bright; no correlation → black/dark
+     - annot=True shows correlation values on each cell
+     - cmap parameter changes color scheme
+     - Input: dataset.corr() [computes pairwise correlation]
+  
+  b) Cluster Map (sns.clustermap):
+     - Uses Hierarchical Clustering to group similar rows/columns
+     - Rows and columns with similar values are placed adjacent
+
+6. TITANIC DATASET
+-------------------
+  - 891 rows, 15 columns
+  - Columns: survived, pclass, sex, age, sibsp, parch, fare, embarked, class,
+    who, adult_male, deck, embark_town, alive, alone
+  - Task: Predict survival based on passenger features
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 9 — DATA VISUALIZATION II (BOX PLOT DEEP DIVE)
+------------------------------------------------------------------------
+
+1. BOX PLOT COMPONENTS (Detailed)
+-----------------------------------
+  - Minimum (lower whisker) : Smallest value within Q1 - 1.5×IQR
+  - Q1 (25th percentile)    : Lower quartile
+  - Median (Q2)             : Middle value (line inside box)
+  - Q3 (75th percentile)    : Upper quartile
+  - Maximum (upper whisker) : Largest value within Q3 + 1.5×IQR
+  - Outliers                : Individual dots beyond the whiskers
+  - IQR = Q3 - Q1
+
+  Reading the Titanic Female Box Plot:
+  - Q1 ≈ 1–20 (25% of female passengers aged between 1 and 20)
+  - Q2 ≈ 20–28 (next 25%)
+  - Q3 ≈ 28–38 (next 25%)
+  - Q4 ≈ 38–64 (top 25%)
+
+  With hue='survived':
+  - Blue = Did not survive (0)
+  - Orange = Survived (1)
+  - Younger males more likely to survive than older males
+  - Female survival variation is less than non-survival variation
+
+
+------------------------------------------------------------------------
+ASSIGNMENT 11 — IMPALA (GROUP B)
+------------------------------------------------------------------------
+
+1. APACHE IMPALA
+-----------------
+  - Open-source, distributed SQL query engine for Apache Hadoop clusters.
+  - Enables real-time querying of large datasets stored in HDFS (Hadoop Distributed
+    File System) or HBase.
+  - Uses massively parallel processing (MPP) — queries execute across all nodes.
+  - Supports standard SQL syntax.
+
+2. IMPALA ARCHITECTURE
+-----------------------
+  - Distributed: Data stored across multiple nodes in a cluster.
+  - Uses a metadata store to track databases, tables, schemas, and data locations.
+  - Supported file formats: Parquet, Avro, RCFile, SequenceFile, text.
+  - No need for MapReduce — directly queries data in-place.
+
+3. IMPALA SQL COMMANDS
+-----------------------
+  Create database:   CREATE DATABASE my_database;
+  Create table:      CREATE TABLE my_table (id INT, name STRING, age INT);
+  Insert data:       INSERT INTO my_table VALUES (1, 'John', 25), (2, 'Jane', 30);
+  Simple query:      SELECT * FROM my_table;
+  Aggregation:       SELECT COUNT(*), AVG(age) FROM my_table;
+  Join:              SELECT a.name, b.dept FROM employees a JOIN dept b ON a.id=b.id;
+
+4. IMPALA vs. HIVE
+-------------------
+  - Both query Hadoop data using SQL-like syntax
+  - Impala: Faster (in-memory), real-time queries, no MapReduce
+  - Hive: Uses MapReduce, better for very large batch queries, more mature ecosystem
+
+
+================================================================================
+PART B — 40 VIVA QUESTIONS (WITH DETAILED ANSWERS)
+================================================================================
+
+Q1. What is Data Wrangling?
+ANS: Data Wrangling (also called Data Munging) is the process of cleaning, structuring,
+and enriching raw data into the desired format for better decision making. It includes
+handling missing values, removing outliers, encoding categorical variables,
+normalization, and data type conversions.
+
+-----
+
+Q2. What is the difference between isnull() and notnull() in Pandas?
+ANS: isnull() returns a Boolean DataFrame where True indicates a missing/NaN value.
+notnull() is the opposite — True indicates a non-missing value. Both are used for
+detecting null values in a DataFrame.
+
+-----
+
+Q3. Why do we normalize data? What is Min-Max normalization?
+ANS: Normalization ensures all features are on the same scale, preventing features with
+large ranges from dominating the model. Min-Max normalization scales values to [0,1]:
+  X_scaled = (X - X_min) / (X_max - X_min)
+It is implemented using sklearn's MinMaxScaler.
+
+-----
+
+Q4. What is Label Encoding and what is its limitation?
+ANS: Label Encoding converts categorical text labels to integers (e.g., setosa→0,
+versicolor→1, virginica→2). The limitation is that it implies an ordinal relationship
+(2 > 1 > 0) which may not exist for nominal categories. One-Hot Encoding is preferred
+for nominal data to avoid this issue.
+
+-----
+
+Q5. What are outliers? How do you detect them using IQR?
+ANS: Outliers are data points that lie far from the rest of the distribution. Using IQR:
+  - Calculate Q1 (25th percentile) and Q3 (75th percentile)
+  - IQR = Q3 - Q1
+  - Lower bound = Q1 - 1.5 × IQR
+  - Upper bound = Q3 + 1.5 × IQR
+  - Values outside these bounds are outliers.
+  Visual method: Boxplot shows outliers as individual dots.
+
+-----
+
+Q6. How does Z-score help detect outliers?
+ANS: Z-score = (X - mean) / standard_deviation
+It measures how many standard deviations a point is from the mean.
+A data point with |Z-score| > 3 is typically considered an outlier.
+
+-----
+
+Q7. Which measure of central tendency is most affected by outliers?
+ANS: The MEAN is most affected by outliers because it includes every value in its
+calculation. The Median is robust to outliers (used when outliers are present).
+The Mode is generally not affected by outliers.
+
+-----
+
+Q8. What is the difference between Stemming and Lemmatization?
+ANS:
+  Stemming: Mechanically removes suffixes/prefixes. Fast but may produce non-words.
+  Example: "studies" → "studi"
+  
+  Lemmatization: Uses linguistic dictionary (morphological analysis) to find the
+  base/dictionary form. Slower but produces valid words.
+  Example: "studies" → "study"
+  
+  Lemmatization is more accurate and produces better ML features.
+
+-----
+
+Q9. What is TF-IDF? Why is log used in IDF?
+ANS: TF-IDF = Term Frequency × Inverse Document Frequency.
+  - TF measures how often a word appears in one document.
+  - IDF weights words that are rare across the corpus.
+  
+  Log is used in IDF = ln(N/df) to prevent high IDF values from dominating the
+  TF-IDF product (since TF is already between 0 and 1).
+
+-----
+
+Q10. What is the difference between Logistic Regression and Linear Regression?
+ANS:
+  Linear Regression:
+  - Predicts continuous output (house price, temperature)
+  - Uses OLS (Ordinary Least Squares) for estimation
+  - Output: any real number
+
+  Logistic Regression:
+  - Predicts categorical/binary output (0/1, yes/no)
+  - Uses MLE (Maximum Likelihood Estimation)
+  - Output: probability between 0 and 1 (via sigmoid)
+
+-----
+
+Q11. What is the Sigmoid Function? Where is it used?
+ANS: The sigmoid (logistic) function maps any real number to [0,1]:
+  f(x) = 1 / (1 + e^(-x))
+  
+  It has an S-shaped curve. Used in logistic regression to convert the linear
+  combination of features into a probability. If output > 0.5 → class 1; else class 0.
+
+-----
+
+Q12. What is the Confusion Matrix? Explain TP, FP, TN, FN.
+ANS: A confusion matrix is a table showing actual vs. predicted classifications:
+  - TP (True Positive) : Actual=Positive, Predicted=Positive ✓
+  - TN (True Negative) : Actual=Negative, Predicted=Negative ✓
+  - FP (False Positive): Actual=Negative, Predicted=Positive ✗ (Type I Error)
+  - FN (False Negative): Actual=Positive, Predicted=Negative ✗ (Type II Error)
+
+-----
+
+Q13. What is Precision vs. Recall?
+ANS:
+  Precision = TP / (TP + FP)
+  "Out of all predicted positives, how many are actually positive?"
+  High precision = few false positives.
+
+  Recall (Sensitivity) = TP / (TP + FN)
+  "Out of all actual positives, how many did we correctly identify?"
+  High recall = few false negatives.
+
+  Trade-off: Increasing precision often decreases recall and vice versa.
+  F1-score = 2 × (Precision × Recall) / (Precision + Recall) balances both.
+
+-----
+
+Q14. What is the Naive assumption in Naive Bayes?
+ANS: The Naive assumption is that all input features are conditionally independent
+of each other given the class label. In reality, features often correlate, but despite
+this "naivety," the classifier performs surprisingly well in many real problems like
+spam detection and text classification.
+
+-----
+
+Q15. What is R-squared? When is a model considered good?
+ANS: R² = SSR/SST = Explained variation / Total variation.
+  Range: 0 to 1.
+  - R² close to 1 → model explains most of the variance → good fit
+  - R² close to 0 → model is no better than just predicting the mean
+  - Limitation: R² always increases as you add more predictors (use Adjusted R²).
+
+-----
+
+Q16. What is MSE? How is it different from RMSE?
+ANS:
+  MSE = (1/n) × Σ(actual - predicted)²
+  - Average of squared errors. Penalizes large errors more.
+  
+  RMSE = √MSE
+  - Square root of MSE. Same unit as the target variable, easier to interpret.
+  - Lower MSE/RMSE = better model.
+
+-----
+
+Q17. What is the purpose of train-test split in Machine Learning?
+ANS: Splitting data into training (typically 80%) and testing (20%) sets ensures:
+  - The model learns patterns from training data
+  - Performance is evaluated on completely unseen test data
+  - Prevents overfitting — a model that memorizes training data but fails on new data
+  - Gives an honest estimate of generalization error
+
+-----
+
+Q18. What is Overfitting and Underfitting?
+ANS:
+  Overfitting: Model learns training data TOO well (including noise).
+  - High training accuracy, low test accuracy.
+  - Cause: Too complex a model (high degree polynomial, too many features).
+  
+  Underfitting: Model is too simple to capture the underlying pattern.
+  - Low training AND test accuracy.
+  - Cause: Too simple a model (linear model for non-linear data).
+  
+  Goal: Find the "Goldilocks" model that generalizes well to unseen data.
+
+-----
+
+Q19. What is a Boxplot? Explain each component.
+ANS: A boxplot (box-and-whisker plot) visualizes data distribution:
+  - Box: Spans from Q1 to Q3 (the IQR)
+  - Center line: Median (Q2)
+  - Lower whisker: Extends to smallest value within Q1 - 1.5×IQR
+  - Upper whisker: Extends to largest value within Q3 + 1.5×IQR
+  - Dots/circles: Outliers beyond whiskers
+
+-----
+
+Q20. What is the 'hue' parameter in Seaborn plots?
+ANS: The hue parameter adds a third categorical variable to a 2D plot by color-coding.
+For example, in sns.boxplot(x='sex', y='age', data=df, hue='survived'), the boxes
+for each gender are further split by survival status (0/1), each shown in a different
+color. This allows 3-dimensional analysis in a 2D plot.
+
+-----
+
+Q21. What is a Violin Plot and how does it differ from a Box Plot?
+ANS: A violin plot is a combination of a box plot and a kernel density estimate (KDE).
+  - Box plot: Shows quartiles, median, outliers (summary statistics only)
+  - Violin plot: Shows the FULL distribution shape — where the violin is wider,
+    more data points exist.
+  
+  Advantage: Reveals multimodality and asymmetry that box plots hide.
+
+-----
+
+Q22. Explain the concept of Bag of Words (BoW).
+ANS: BoW is a text representation technique where a document is described by its
+word frequencies, ignoring grammar and word order. Steps:
+  1. Create a vocabulary of unique words across all documents
+  2. Represent each document as a vector of word counts
+  
+  Limitation: Loses contextual meaning and word order.
+  It forms the basis for TF-IDF and other text vectorization methods.
+
+-----
+
+Q23. What is POS Tagging? Give examples.
+ANS: POS (Part of Speech) Tagging assigns grammatical tags to each word:
+  - NN (Noun): "dog", "city"
+  - VB (Verb): "run", "eat"
+  - JJ (Adjective): "big", "happy"
+  - DT (Determiner): "the", "a"
+  - RB (Adverb): "quickly", "very"
+  
+  Words can have multiple POS depending on context:
+  "book a table" (VB) vs. "read a book" (NN)
+  
+  Use: Semantic analysis, text-to-speech, sentiment analysis, NER.
+
+-----
+
+Q24. What is a Heat Map? When would you use it?
+ANS: A heat map is a 2D matrix visualization where cell color represents the magnitude
+of a value (e.g., correlation coefficient). Used to:
+  - Visualize feature-feature correlation (dataset.corr())
+  - Identify highly correlated features (to avoid multicollinearity in regression)
+  - Detect patterns in large matrices
+  
+  In seaborn: sns.heatmap(corr, annot=True)
+  Colors: White/bright = high correlation, black = low correlation (default).
+
+-----
+
+Q25. What is the difference between Bar Plot and Count Plot in Seaborn?
+ANS:
+  Bar Plot (sns.barplot): Shows the MEAN (or custom aggregate) of a numeric
+  variable grouped by a categorical variable.
+  Example: Average age per gender.
+
+  Count Plot (sns.countplot): Shows the COUNT of observations per category.
+  No numeric variable needed.
+  Example: Number of male vs. female passengers.
+
+-----
+
+Q26. What is Data Normalization vs. Data Standardization?
+ANS:
+  Normalization (Min-Max):
+  - Scales values to [0, 1]
+  - X_scaled = (X - X_min) / (X_max - X_min)
+  - Affected by outliers
+  - Used when distribution is unknown or not Gaussian
+
+  Standardization (Z-score):
+  - Centers data to mean=0, std=1
+  - X_std = (X - mean) / std_dev
+  - Robust to outliers
+  - Preferred for algorithms assuming Gaussian distribution (e.g., SVM, LDA)
+
+-----
+
+Q27. What is a Joint Plot? What types does it support?
+ANS: A joint plot shows the distribution of two variables simultaneously:
+  - Central panel: Scatter/hexagonal plot showing joint distribution
+  - Top panel: Distribution of x-variable
+  - Right panel: Distribution of y-variable
+  
+  Types (kind parameter): 'scatter', 'hex', 'kde', 'reg', 'resid'
+  
+  Usage: sns.jointplot(x='age', y='fare', data=dataset, kind='hex')
+  Observation: No correlation between age and fare in Titanic dataset.
+
+-----
+
+Q28. What is the Rug Plot?
+ANS: A rug plot draws small vertical tick marks along the axis for each data point.
+Each tick represents one observation.
+  - Dense ticks → high concentration of data points
+  - Sparse ticks → fewer observations
+  
+  It supplements histograms/KDE plots with the exact position of each data point.
+  Usage: sns.rugplot(dataset['fare'])
+
+-----
+
+Q29. Explain the types of Data Transformation with examples.
+ANS:
+  a) Smoothing: Remove noise; e.g., moving average smoothing of time series
+  b) Aggregation: Summarize; e.g., total monthly sales from daily transactions
+  c) Generalization: Convert granular → abstract; e.g., 22 years old → "Young"
+  d) Normalization: Scale to [0,1] or zero-mean; e.g., MinMaxScaler
+  e) Attribute Construction: Create new features; e.g., Club_Join_Date → Duration
+  f) Log Transformation: Reduce right skewness; np.log10(df['score'])
+
+-----
+
+Q30. What is the purpose of describe() in Pandas?
+ANS: df.describe() provides a statistical summary of all numeric columns:
+  - count: Number of non-null values
+  - mean: Arithmetic average
+  - std: Standard deviation
+  - min: Minimum value
+  - 25%: First quartile
+  - 50%: Median (second quartile)
+  - 75%: Third quartile
+  - max: Maximum value
+  
+  For grouped statistics: df.groupby('Species').describe()
+
+-----
+
+Q31. What is Apache Impala? How does it differ from traditional SQL databases?
+ANS: Impala is an open-source, massively parallel SQL query engine for Hadoop clusters.
+  
+  Differences from traditional RDBMS:
+  - Stores data in HDFS (not a traditional disk-based storage)
+  - Queries are executed in parallel across multiple nodes
+  - No need for MapReduce (unlike Hive)
+  - Supports Parquet, Avro, RCFile formats
+  - Near real-time querying of petabyte-scale data
+  - Best for analytical (OLAP) workloads, not transactional (OLTP)
+
+-----
+
+Q32. What is the difference between dropna() and fillna()?
+ANS:
+  dropna(): REMOVES rows/columns containing missing values.
+    - dropna()           → Drop rows with any NaN
+    - dropna(how='all')  → Drop rows where ALL values are NaN
+    - dropna(axis=1)     → Drop columns with NaN
+  
+  fillna(): REPLACES missing values with a specified value.
+    - fillna(0)                      → Replace with 0
+    - fillna(df['col'].mean())       → Replace with column mean
+    - fillna(df['col'].median())     → Replace with median
+    - fillna(method='ffill')         → Forward fill (use previous value)
+
+-----
+
+Q33. What is Quantile-based flooring and capping for outlier handling?
+ANS: Instead of removing outliers, cap them at a reasonable boundary:
+  - Calculate the 5th percentile (floor) and 95th percentile (cap)
+  - Replace values below floor with floor value
+  - Replace values above cap with cap value
+  
+  This preserves all data points while reducing the effect of extreme values.
+  Less information is lost compared to trimming.
+
+-----
+
+Q34. What are the 3 Vs of Big Data?
+ANS:
+  - Volume  : The sheer size of data (terabytes to petabytes)
+  - Velocity: Speed at which data is generated and needs to be processed
+  - Variety : Different types/formats (structured tables, semi-structured JSON/XML,
+              unstructured text/images/video)
+  
+  Extended versions add: Veracity (data quality/accuracy) and Value (business worth).
+
+-----
+
+Q35. What is the difference between Multinomial and Binary Logistic Regression?
+ANS:
+  Binary Logistic Regression:
+  - Two classes only (0/1, Yes/No, Spam/Not Spam)
+  - Uses single sigmoid function
+  - Example: Titanic survival (survived or not)
+
+  Multinomial Logistic Regression:
+  - Three or more nominal classes
+  - Uses softmax function (generalization of sigmoid)
+  - Example: Classifying type of wine (Red/White/Rosé)
+
+  Ordinal Logistic Regression:
+  - Three or more ordered/ranked classes
+  - Example: Customer rating 1–5 stars
+
+-----
+
+Q36. Why is the IRIS dataset famous in Machine Learning?
+ANS: The Iris dataset (R.A. Fisher, 1936) is famous because:
+  - Clean, well-structured, no missing values
+  - Small size (150 samples) → fast to process
+  - Three classes, balanced (50 samples each)
+  - One class (setosa) is linearly separable; others are not → tests classifier power
+  - Available in sklearn, UCI ML Repository — universally accessible
+  - Used to demonstrate classification, clustering, dimensionality reduction
+
+-----
+
+Q37. What is Stop Words Removal? Why is it important?
+ANS: Stop words are high-frequency, low-information words (is, am, the, a, an, etc.)
+that don't contribute to the meaning of text. Removing them:
+  - Reduces the dimensionality of the feature space
+  - Eliminates noise in text analysis
+  - Improves model accuracy
+  - Reduces computational cost
+  
+  In NLTK: stopwords.words("english") provides a predefined stop words list.
+
+-----
+
+Q38. Explain the Least Squares Method.
+ANS: Least Squares minimizes the sum of squared residuals (difference between
+actual and predicted values) to find the best-fit regression line.
+
+  For y = β₀ + β₁x:
+    β₁ = Σ(xᵢ - x̄)(yᵢ - ȳ) / Σ(xᵢ - x̄)²   [slope]
+    β₀ = ȳ - β₁x̄                              [intercept]
+
+  This is the OLS (Ordinary Least Squares) solution. It is the BLUE estimator
+  (Best Linear Unbiased Estimator) under the Gauss-Markov theorem.
+
+-----
+
+Q39. What is Generalization in Machine Learning?
+ANS: Generalization is the model's ability to perform well on new, unseen data
+(not just the training data). A well-generalized model:
+  - Has low training error AND low test error
+  - Has NOT memorized training data (not overfitted)
+  - Has learned the true underlying patterns
+  
+  Generalization error = average error on all possible unseen data.
+  Goal of ML: Minimize generalization error.
+
+-----
+
+Q40. What is the difference between Swarm Plot and Strip Plot?
+ANS:
+  Strip Plot (sns.stripplot):
+  - Scatter plot with one categorical axis
+  - Points may overlap (jitter=True adds noise to spread them)
+  - Can be cluttered with large datasets
+
+  Swarm Plot (sns.swarmplot):
+  - Points are automatically adjusted to NOT overlap
+  - Better represents the distribution of data
+  - Combination of strip plot + violin plot character
+  - More computationally expensive for large datasets
+
+
+================================================================================
+PART C — QUICK REFERENCE: PYTHON FUNCTIONS CHEAT SHEET
+================================================================================
+
+PANDAS:
+  pd.read_csv(path)                   → Load CSV file
+  df.head(n) / df.tail(n)             → First/last n rows
+  df.shape                            → (rows, columns)
+  df.dtypes                           → Data types
+  df.isnull().sum()                   → Count nulls per column
+  df.fillna(value)                    → Fill nulls
+  df.dropna()                         → Remove null rows
+  df.describe()                       → Statistical summary
+  df.groupby('col').describe()        → Grouped statistics
+  df['col'].astype('int')             → Type conversion
+  df['col'].mean()/.median()/.std()   → Central tendency
+  df.corr()                           → Correlation matrix
+
+SKLEARN:
+  preprocessing.MinMaxScaler()        → Normalization
+  preprocessing.LabelEncoder()        → Label encoding
+  train_test_split(X, y, test_size=0.2) → Split data
+  LinearRegression().fit(X_train, y_train) → Linear regression
+  LogisticRegression().fit(X_train, y_train) → Logistic regression
+  GaussianNB().fit(X_train, y_train)  → Naive Bayes
+  confusion_matrix(y_test, y_pred)    → Confusion matrix
+  accuracy_score(y_test, y_pred)      → Accuracy
+  precision_score(y_test, y_pred)     → Precision
+  recall_score(y_test, y_pred)        → Recall
+  r2_score(y, y_pred)                 → R-squared
+  mean_squared_error(y, y_pred)       → MSE
+
+MATPLOTLIB / SEABORN:
+  sns.distplot(df['col'], bins=10)    → Distribution plot
+  sns.jointplot(x='c1', y='c2', data=df) → Joint plot
+  sns.barplot(x='cat', y='num', data=df) → Bar plot
+  sns.countplot(x='cat', data=df)     → Count plot
+  sns.boxplot(x='cat', y='num', data=df, hue='cat2') → Box plot
+  sns.violinplot(x='cat', y='num', data=df) → Violin plot
+  sns.heatmap(df.corr(), annot=True)  → Heat map
+  sns.histplot(df['col'], kde=False, bins=10) → Histogram
+
+NLTK:
+  sent_tokenize(text)                 → Sentence tokenization
+  word_tokenize(text)                 → Word tokenization
+  stopwords.words("english")          → English stop words
+  PorterStemmer().stem(word)          → Stemming
+  WordNetLemmatizer().lemmatize(word) → Lemmatization
+  nltk.pos_tag([word])                → POS tagging
+
+TF-IDF:
+  TF(w,d) = count(w in d) / total_words(d)
+  IDF(w,D) = ln(N / df(w))
+  TFIDF(w,d,D) = TF(w,d) × IDF(w,D)
+  TfidfVectorizer() from sklearn.feature_extraction.text
+
+IMPALA SQL:
+  CREATE DATABASE db_name;
+  CREATE TABLE table_name (col1 TYPE, col2 TYPE);
+  INSERT INTO table_name VALUES (v1, v2);
+  SELECT * FROM table_name;
+  SELECT col, COUNT(*) FROM table GROUP BY col;
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+Total Concepts Covered: 50+ 
+Total Viva Questions: 40
+Assignments Covered: 1 through 9 and 11
+================================================================================
