@@ -1,0 +1,122 @@
+This assignment introduces crucial techniques for handling "messy" real-world data. Real data is rarely perfect; it has missing chunks and absurd errors (outliers). This code demonstrates how to clean those errors mathematically without destroying the dataset.
+
+Here is a complete breakdown of the code, an interactive tool to understand the math, and the materials you need for your viva.
+
+### **1. Core Concepts & Step-by-Step Explanation**
+
+* **Step 1: Dataset Creation**
+* **Concept:** We create a mock dataset (`df`) using a dictionary. We intentionally inject problems: `np.nan` (missing values) and unrealistic numbers (like a Math Score of 150 out of 100, or a Reading Score of 10).
+
+
+* **Step 2: Missing Value Imputation (The Median)**
+* **Concept:** The code finds the missing Math scores and fills them.
+* **Why Median?** Usually, people fill missing gaps with the "Mean" (Average). However, the Mean is highly sensitive to outliers. Because we have a score of 150, the Mean would be artificially dragged upward. The **Median** (the exact middle value when sorted) completely ignores extreme highs or lows, making it a much safer guess.
+
+
+* **Step 3: Handling Outliers (The IQR Method)**
+* **Concept:** IQR stands for Interquartile Range. It represents the middle 50% of your data (where the "normal" data lives).
+* **The Math:**
+* Find Q1 (25th percentile) and Q3 (75th percentile).
+* Calculate the IQR = Q3 - Q1.
+* Establish a "safe zone" by calculating a Lower Bound ($Q1 - 1.5 \times IQR$) and an Upper Bound ($Q3 + 1.5 \times IQR$).
+
+
+* **Capping (`np.where`):** Instead of deleting the row with the 150 score (which would lose the student's valid reading/writing scores), `np.where` acts like a filter. It says: "If a score is higher than the Upper Bound, change it to equal the Upper Bound." This brings extreme values back to the edge of normality.
+
+
+* **Step 4: Log Transformation**
+* **Concept:** Machine Learning models assume data is "Normally Distributed" (a symmetrical bell curve). If data is skewed (bunched up on one side with a long tail on the other), models struggle.
+* Applying `np.log1p()` mathematically squashes the large extreme values closer together, pulling a skewed distribution into a shape that looks more like a healthy bell curve.
+
+
+
+---
+
+### **Interactive IQR Explorer**
+
+To truly understand how outliers are calculated, try adjusting the numbers in this tool. Watch how adding an extreme number (like 300) dramatically shifts the Mean, but barely touches the Median or the IQR boundaries.
+
+---
+
+### **2. Potential Viva Questions & Answers**
+
+**Q1: Why did you use the Median to fill missing values instead of the Mean?**
+
+> **A:** The `Math_Score` column contained an extreme outlier (150). The mean is easily distorted by outliers, which would result in filling the missing values with an inaccurately high number. The median is robust against outliers.
+
+**Q2: How does the IQR method identify an outlier?**
+
+> **A:** It finds the middle 50% of the dataset (IQR = Q3 - Q1). It then defines boundaries by subtracting 1.5 times the IQR from Q1, and adding 1.5 times the IQR to Q3. Any point outside these boundaries is flagged as an outlier.
+
+**Q3: In Step 3, you used `np.where()` to handle outliers. What exactly is this doing?**
+
+> **A:** It is performing **Winsorization** or "Capping." Instead of deleting the entire row containing the outlier, `np.where` clips the extreme value, replacing it with the exact Upper or Lower bound limit. This preserves the rest of the student's valid data.
+
+**Q4: Why do we perform Data Transformations like Log Transformation?**
+
+> **A:** To reduce skewness. Many machine learning models (like Linear Regression) assume the data follows a Normal Distribution (Bell Curve). Log transformation compresses the long tail of right-skewed data, making its shape more normal.
+
+**Q5: Why did you use `np.log1p()` instead of standard `np.log()`?**
+
+> **A:** `np.log1p(x)` calculates `log(1 + x)`. If a dataset contains the value `0`, standard `np.log(0)` results in negative infinity, which will crash the code. Adding 1 ensures mathematical stability.
+
+---
+
+### **3. Possible "On-the-Spot" Code Modifications**
+
+Examiners will likely ask you to try different methods for handling the data. Here is the code you need to execute those requests:
+
+#### **Change Request 1: "Instead of IQR, use the Z-Score method to detect outliers."**
+
+*Why they ask:* Z-score is the other major statistical method for outliers (best for normally distributed data).
+*How to do it:*
+Replace Step 3 entirely with this:
+
+```python
+from scipy import stats
+
+def handle_outliers_zscore(dataframe, column_name):
+    # Calculate absolute Z-scores
+    z_scores = np.abs(stats.zscore(dataframe[column_name].dropna()))
+    
+    # Identify rows where Z-score is greater than 3 (Standard threshold)
+    outliers = z_scores > 3
+    print(f"Outliers found in {column_name}: {outliers.sum()}")
+    
+    # Keep only rows where Z-score is less than 3
+    # Note: This deletes rows, unlike the IQR capping method
+    dataframe = dataframe[(np.abs(stats.zscore(dataframe[column_name])) < 3)]
+    return dataframe
+
+df = handle_outliers_zscore(df, 'Math_Score')
+
+```
+
+#### **Change Request 2: "Drop the rows with missing values instead of filling them with the median."**
+
+*Why they ask:* Checking if you know the simplest Pandas cleaning functions.
+*How to do it:*
+Replace Step 2 with this:
+
+```python
+# Drops any row that contains at least one NaN value
+df.dropna(inplace=True)
+print("\n--- Missing Values After Dropping ---")
+print(df.isnull().sum())
+
+```
+
+#### **Change Request 3: "Apply a Square Root Transformation instead of a Log Transformation."**
+
+*Why they ask:* Square root is another common transformation used when data has zeroes or is moderately skewed (Log is for heavily skewed data).
+*How to do it:*
+Replace Step 4 with this:
+
+```python
+# Apply square root transformation
+df['Placement_Score_Sqrt'] = np.sqrt(df['Placement_Score'])
+
+print("\n--- Placement Score vs Square Root Transformation ---")
+print(df[['Placement_Score', 'Placement_Score_Sqrt']].head())
+
+```
